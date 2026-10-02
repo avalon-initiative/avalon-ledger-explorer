@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { AvalonButton, AvalonStatusBadge, AvalonTabs, AvalonTextField } from '@avalon-initiative/common-ui'
 import { onMounted, ref, watch } from 'vue'
+import BrowsePanel from '../components/BrowsePanel.vue'
 import IdentityTimeline from '../components/IdentityTimeline.vue'
 import LiveFeed from '../components/LiveFeed.vue'
 import NameSearch from '../components/NameSearch.vue'
 import NetworkConnect from '../components/NetworkConnect.vue'
-import ShardEntries from '../components/ShardEntries.vue'
 import SthReport from '../components/SthReport.vue'
 import { useConnection } from '../composables/useConnection'
 import styles from '../styles/Home.module.scss'
 import { verdict } from '../utils/sthView'
 
-const shardEntries = ref<InstanceType<typeof ShardEntries> | null>(null)
+const browse = ref<InstanceType<typeof BrowsePanel> | null>(null)
 const timeline = ref<InstanceType<typeof IdentityTimeline> | null>(null)
 const TABS = [
   { id: 'head', label: 'Head' },
@@ -41,9 +41,9 @@ async function showTimeline(identityId: string) {
   await timeline.value?.lookup(identityId)
 }
 
-async function openEntry({ shardId, seq }: { shardId: string; seq: number }) {
+async function openEntry({ seq }: { shardId: string; seq: number }) {
   tab.value = 'browse'
-  await shardEntries.value?.jumpTo(shardId, seq)
+  await browse.value?.showEntry(seq)
 }
 </script>
 
@@ -80,7 +80,7 @@ async function openEntry({ shardId, seq }: { shardId: string; seq: number }) {
       </form>
       <AvalonTabs v-model="tab" :tabs="TABS" label="Explorer views" :class="styles.tabs">
         <template #head><SthReport :report="report" /></template>
-        <template #browse><ShardEntries ref="shardEntries" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" /></template>
+        <template #browse><BrowsePanel ref="browse" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" /></template>
         <template #search>
           <NameSearch :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @timeline="showTimeline" />
         </template>
