@@ -59,10 +59,10 @@ export function useShardEntries(nodeUrl: string, deps: ShardEntriesDeps = defaul
   }
 
   /** Starts over on the entered shard: first page, new head verification, filter cleared. */
-  async function load() {
+  async function load(startAfter = 0) {
     shardId.value = shardInput.value.trim() || DEFAULT_SHARD
     shardInput.value = shardId.value
-    starts.value = [0]
+    starts.value = [startAfter]
     selectedKinds.value = []
     head.value = null
     const forShard = shardId.value
@@ -73,6 +73,13 @@ export function useShardEntries(nodeUrl: string, deps: ShardEntriesDeps = defaul
       () => undefined,
     )
     await fetchPage()
+  }
+
+  /** Opens the page that starts at `seq` in `shard` with that entry's payload shown. */
+  async function jumpTo(shard: string, seq: number) {
+    shardInput.value = shard
+    await load(Math.max(0, seq - 1))
+    if (phase.value === 'done' && entries.value.some((e) => e.seq === seq)) expanded.value = [seq]
   }
 
   async function next() {
@@ -92,5 +99,5 @@ export function useShardEntries(nodeUrl: string, deps: ShardEntriesDeps = defaul
     expanded.value = expanded.value.includes(seq) ? expanded.value.filter((s) => s !== seq) : [...expanded.value, seq]
   }
 
-  return { shardInput, shardId, phase, error, entries, head, selectedKinds, expanded, sinceSeq, hasPrevious, hasNext, visible, kinds, continuity, load, next, previous, toggle }
+  return { shardInput, shardId, phase, error, entries, head, selectedKinds, expanded, sinceSeq, hasPrevious, hasNext, visible, kinds, continuity, load, jumpTo, next, previous, toggle }
 }
