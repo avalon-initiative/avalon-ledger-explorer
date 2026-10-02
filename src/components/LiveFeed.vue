@@ -1,25 +1,30 @@
 <script setup lang="ts">
 import { AvalonButton, AvalonMultiSelect, AvalonStatusBadge, AvalonTextField, AvalonWarningBanner } from '@avalon-initiative/common-ui'
-import { onBeforeUnmount } from 'vue'
+import { onBeforeUnmount, watch } from 'vue'
 import { useLiveFeed } from '../composables/useLiveFeed'
 import type { LiveFeedDeps } from '../composables/useLiveFeed'
 import styles from '../styles/LiveFeed.module.scss'
 import { shortHash } from '../utils/entryView'
 import { verdict } from '../utils/sthView'
 
-const props = defineProps<{ nodeUrl: string; deps?: LiveFeedDeps }>()
+const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; deps?: LiveFeedDeps }>(), { shard: 'core' })
 const state = useLiveFeed(props.nodeUrl, props.deps)
 const { shardInput, shardId, followInput, followInvalid, selectedKinds, phase, error, feed, visible, kinds, head, broken } = state
 onBeforeUnmount(state.stop)
+watch(
+  () => props.shard,
+  (id) => {
+    shardInput.value = id
+    if (phase.value !== 'idle') void state.start()
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
   <section :class="styles.feed" aria-label="Live feed" data-testid="live-feed">
     <h2 :class="styles.heading">Live feed</h2>
     <form :class="styles.form" @submit.prevent="state.start()">
-      <div :class="styles.field">
-        <AvalonTextField v-model="shardInput" label="Shard id" placeholder="core" :disabled="phase === 'starting'" />
-      </div>
       <AvalonButton :label="phase === 'idle' || phase === 'failed' ? 'Start feed' : 'Restart feed'" :disabled="phase === 'starting'" @click="state.start()" />
       <AvalonButton v-if="phase === 'running'" label="Pause" variant="secondary" @click="state.pause()" />
       <AvalonButton v-if="phase === 'paused'" label="Resume" variant="secondary" @click="state.resume()" />
