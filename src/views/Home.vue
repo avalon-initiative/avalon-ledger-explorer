@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import IdentityTimeline from '../components/IdentityTimeline.vue'
+import LiveFeed from '../components/LiveFeed.vue'
 import NameSearch from '../components/NameSearch.vue'
 import NodeUrlForm from '../components/NodeUrlForm.vue'
 import ShardEntries from '../components/ShardEntries.vue'
@@ -24,6 +25,7 @@ const { nodeUrl, phase, error, report, submit } = useSthVerification()
     <SthReport v-if="report" :report="report" />
     <NameSearch v-if="report" :key="`names-${report.nodeUrl}`" :node-url="report.nodeUrl" @timeline="({ shardId, identityId }) => timeline?.lookup(shardId, identityId)" />
     <IdentityTimeline v-if="report" ref="timeline" :key="`timeline-${report.nodeUrl}`" :node-url="report.nodeUrl" @open="({ shardId, seq }) => shardEntries?.jumpTo(shardId, seq)" />
+    <LiveFeed v-if="report" :key="`feed-${report.nodeUrl}`" :node-url="report.nodeUrl" />
     <ShardEntries v-if="report" ref="shardEntries" :key="report.nodeUrl" :node-url="report.nodeUrl" />
   </main>
 </template>
