@@ -1,0 +1,11 @@
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--av-space-4);
+}
+
+.field {
+  flex: 1 1 20rem;
+  min-width: 0;
+}
