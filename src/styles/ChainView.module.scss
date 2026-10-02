@@ -130,3 +130,17 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.meaning {
+  margin: 0;
+  font-size: var(--av-text-base);
+  color: var(--av-color-text-secondary);
+}
+
+.caption {
+  font-size: var(--av-text-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--av-color-text-secondary);
+}

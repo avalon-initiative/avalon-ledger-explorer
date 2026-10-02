@@ -5,6 +5,8 @@ import { useLiveFeed } from '../composables/useLiveFeed'
 import type { LiveFeedDeps } from '../composables/useLiveFeed'
 import styles from '../styles/LiveFeed.module.scss'
 import { shortHash } from '../utils/entryView'
+import { describeKind } from '../utils/kindInfo'
+import { formatTime } from '../utils/timeView'
 import { verdict } from '../utils/sthView'
 
 const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; deps?: LiveFeedDeps }>(), { shard: 'core' })
@@ -23,7 +25,6 @@ watch(
 
 <template>
   <section :class="styles.feed" aria-label="Live feed" data-testid="live-feed">
-    <h2 :class="styles.heading">Live feed</h2>
     <form :class="styles.form" @submit.prevent="state.start()">
       <AvalonButton :label="phase === 'idle' || phase === 'failed' ? 'Start feed' : 'Restart feed'" :disabled="phase === 'starting'" @click="state.start()" />
       <AvalonButton v-if="phase === 'running'" label="Pause" variant="secondary" @click="state.pause()" />
@@ -50,9 +51,9 @@ watch(
       <ul :class="styles.list">
         <li v-for="entry in visible" :key="entry.seq" :class="styles.item" data-testid="feed-entry">
           <span :class="styles.mono">seq {{ entry.seq }}</span>
-          <strong>{{ entry.kind }}</strong>
+          <strong :title="describeKind(entry.kind)">{{ entry.kind }}</strong>
           <span :class="styles.wrap">{{ entry.subject }}</span>
-          <span :class="styles.mono">{{ entry.event_timestamp }}</span>
+          <span :title="entry.event_timestamp">{{ formatTime(entry.event_timestamp) }}</span>
           <span :class="styles.mono" :title="entry.entry_hash">{{ shortHash(entry.entry_hash) }}</span>
         </li>
       </ul>

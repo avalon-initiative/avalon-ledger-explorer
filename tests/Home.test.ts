@@ -98,4 +98,20 @@ describe('Home', () => {
     expect(urls.some((u) => u.includes('shard_id=other'))).toBe(true)
     vi.unstubAllGlobals()
   })
+
+  it('explains what to do before a network is chosen, then shows the summary instead', async () => {
+    const wrapper = mount(Home)
+    await flushPromises()
+    expect(wrapper.find('[data-testid="welcome"]').text()).toContain('Choose a network')
+    await wrapper.find('[data-testid="network-button"]').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('[data-testid="welcome"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="head-summary"]').text()).toContain('Signed by the network and witnessed')
+  })
+
+  it('jumps to the checks from the summary', async () => {
+    const wrapper = await verify('http://node:8080')
+    await wrapper.findAll('button').find((b) => b.text() === 'See the checks')?.trigger('click')
+    expect(wrapper.find('[role="tab"][aria-selected="true"]').text()).toBe('Head')
+  })
 })

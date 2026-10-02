@@ -6,6 +6,8 @@ import type { ChainDeps } from '../composables/useChainNavigator'
 import styles from '../styles/ChainView.module.scss'
 import { linkLabel } from '../utils/chainLinks'
 import { payloadText, shortHash } from '../utils/entryView'
+import { describeKind } from '../utils/kindInfo'
+import { formatTime } from '../utils/timeView'
 
 const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; deps?: ChainDeps }>(), { shard: 'core' })
 const emit = defineEmits<{ 'show-in-list': [target: { shardId: string; seq: number }] }>()
@@ -51,7 +53,7 @@ defineExpose({ goTo: state.goTo })
       min="1"
       :max="latest"
       :value="seq"
-      aria-label="Position in the shard"
+      aria-label="Position in the shard: drag to jump to any entry"
       data-testid="chain-slider"
       @change="state.goTo(Number(($event.target as HTMLInputElement).value))"
     />
@@ -63,8 +65,10 @@ defineExpose({ goTo: state.goTo })
     <div v-if="window.current" :class="styles.row">
       <div :class="styles.neighbour" data-testid="chain-before">
         <button v-if="window.prev" type="button" :class="styles.side" data-testid="chain-prev" @click="state.goTo(window.prev.seq)">
+          <span :class="styles.caption">← Previous entry</span>
           <span :class="styles.seq">seq {{ window.prev.seq }}</span>
           <strong>{{ window.prev.kind }}</strong>
+          <span :class="styles.meaning">{{ describeKind(window.prev.kind) }}</span>
           <span :class="styles.mono" :title="window.prev.entry_hash">{{ shortHash(window.prev.entry_hash) }}</span>
         </button>
         <div v-else :class="[styles.side, styles.empty]" data-testid="chain-prev-none">Start of the chain</div>
@@ -75,9 +79,11 @@ defineExpose({ goTo: state.goTo })
 
       <article :class="styles.current" aria-label="Current entry" data-testid="chain-current">
         <header :class="styles.head">
+          <span :class="styles.caption">Selected entry</span>
           <span :class="styles.seq">seq {{ window.current.seq }}</span>
           <strong>{{ window.current.kind }}</strong>
         </header>
+        <p :class="styles.meaning" data-testid="chain-meaning">{{ describeKind(window.current.kind) }}</p>
         <div :class="styles.body">
           <dl :class="styles.fields">
             <dt>Subject</dt>
@@ -85,7 +91,7 @@ defineExpose({ goTo: state.goTo })
             <dt>Issuer</dt>
             <dd>{{ window.current.issuer }}</dd>
             <dt>Time</dt>
-            <dd :class="styles.mono">{{ window.current.event_timestamp }}</dd>
+            <dd :title="window.current.event_timestamp">{{ formatTime(window.current.event_timestamp) }}</dd>
             <dt>Entry hash</dt>
             <dd :class="styles.mono">{{ window.current.entry_hash }}</dd>
             <dt>Previous hash</dt>
@@ -98,8 +104,10 @@ defineExpose({ goTo: state.goTo })
 
       <div :class="styles.neighbour" data-testid="chain-after">
         <button v-if="window.next" type="button" :class="styles.side" data-testid="chain-next" @click="state.goTo(window.next.seq)">
+          <span :class="styles.caption">Next entry →</span>
           <span :class="styles.seq">seq {{ window.next.seq }}</span>
           <strong>{{ window.next.kind }}</strong>
+          <span :class="styles.meaning">{{ describeKind(window.next.kind) }}</span>
           <span :class="styles.mono" :title="window.next.entry_hash">{{ shortHash(window.next.entry_hash) }}</span>
         </button>
         <div v-else :class="[styles.side, styles.empty]" data-testid="chain-next-none">End of the chain</div>

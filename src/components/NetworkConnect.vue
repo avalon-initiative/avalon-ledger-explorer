@@ -34,6 +34,7 @@ function hostOf(url: string): string {
     <div :class="styles.bar">
       <div :class="styles.group">
         <span :class="styles.label" id="network-label">Network</span>
+        <span :class="styles.hint">Pick one to connect</span>
         <p v-if="loading" :class="styles.note">Loading the published networks.</p>
         <AvalonWarningBanner v-else-if="loadError" tone="warning" title="Could not load the published networks" :message="`${loadError} Enter a node URL below instead.`" />
         <div v-else :class="styles.choices" role="group" aria-labelledby="network-label">
@@ -51,6 +52,7 @@ function hostOf(url: string): string {
       </div>
       <div v-if="nodes.length > 1" :class="styles.group" data-testid="node-choices">
         <span :class="styles.label" id="node-label">Node</span>
+        <span :class="styles.hint">Nodes publishing a head signed by this network, fastest first</span>
         <div :class="styles.choices" role="group" aria-labelledby="node-label">
           <AvalonButton
             v-for="node in nodes"

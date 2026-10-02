@@ -24,6 +24,11 @@
   color: var(--av-color-text-secondary);
 }
 
+.hint {
+  font-size: var(--av-text-sm);
+  color: var(--av-color-text-secondary);
+}
+
 .choices {
   display: flex;
   flex-wrap: wrap;
