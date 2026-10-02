@@ -30,7 +30,7 @@ describe('NameSearch', () => {
   it('emits the identity to show a timeline for', async () => {
     const wrapper = await search()
     await wrapper.find('[data-testid="name-timeline"]').trigger('click')
-    expect(wrapper.emitted('timeline')?.[0]).toEqual([{ shardId: 'core', identityId: 'id-a' }])
+    expect(wrapper.emitted('timeline')?.[0]).toEqual(['id-a'])
   })
 
   it('refuses an empty query', async () => {

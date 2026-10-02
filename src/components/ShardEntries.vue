@@ -1,28 +1,29 @@
 <script setup lang="ts">
-import { AvalonButton, AvalonCard, AvalonMultiSelect, AvalonStatusBadge, AvalonTextField, AvalonWarningBanner } from '@avalon-initiative/common-ui'
-import { onMounted } from 'vue'
+import { AvalonButton, AvalonCard, AvalonMultiSelect, AvalonStatusBadge, AvalonWarningBanner } from '@avalon-initiative/common-ui'
+import { onMounted, watch } from 'vue'
 import { useShardEntries } from '../composables/useShardEntries'
 import type { ShardEntriesDeps } from '../composables/useShardEntries'
 import styles from '../styles/ShardEntries.module.scss'
 import { continuityLabel, payloadText, shortHash } from '../utils/entryView'
 import { verdict } from '../utils/sthView'
 
-const props = defineProps<{ nodeUrl: string; deps?: ShardEntriesDeps }>()
+const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; deps?: ShardEntriesDeps }>(), { shard: 'core' })
 const state = useShardEntries(props.nodeUrl, props.deps)
-const { shardInput, shardId, phase, error, head, selectedKinds, expanded, hasPrevious, hasNext, visible, kinds, continuity, entries, sinceSeq } = state
+const { shardId, phase, error, head, selectedKinds, expanded, hasPrevious, hasNext, visible, kinds, continuity, entries, sinceSeq } = state
+state.shardInput.value = props.shard
 onMounted(() => state.load())
+watch(
+  () => props.shard,
+  (id) => {
+    state.shardInput.value = id
+    void state.load()
+  },
+)
 defineExpose({ jumpTo: state.jumpTo })
 </script>
 
 <template>
   <section :class="styles.entries" aria-label="Shard entries" data-testid="shard-entries">
-    <form :class="styles.shardForm" @submit.prevent="state.load()">
-      <div :class="styles.shardField">
-        <AvalonTextField v-model="shardInput" label="Shard id" placeholder="core" :disabled="phase === 'loading'" />
-      </div>
-      <AvalonButton label="List entries" :disabled="phase === 'loading'" @click="state.load()" />
-    </form>
-
     <AvalonCard :title="`Shard ${shardId}`" subtitle="Latest signed tree head of this shard">
       <template #action>
         <AvalonStatusBadge v-if="head" :label="verdict(head).label" :tone="verdict(head).tone" data-testid="shard-verdict" />

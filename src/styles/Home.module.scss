@@ -2,7 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--av-space-4);
-  max-width: 52rem;
+  max-width: 64rem;
   margin: 0 auto;
   padding: var(--av-space-6) var(--av-space-4);
 }
@@ -14,4 +14,20 @@
 .lede {
   margin: 0;
   color: var(--av-color-text-secondary);
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--av-space-4);
+}
+
+.shard {
+  flex: 0 1 14rem;
+  min-width: 0;
+}
+
+.tabs {
+  min-width: 0;
 }

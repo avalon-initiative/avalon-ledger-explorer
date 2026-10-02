@@ -77,4 +77,25 @@ describe('Home', () => {
     expect(wrapper.find('[data-testid="verdict"]').text()).toBe('Verified')
     expect(wrapper.find('[data-testid="current-node"]').text()).toContain('seed-a')
   })
+
+  it('shows the views as tabs, with the entries first and the head one tab away', async () => {
+    const wrapper = await verify('http://node:8080')
+    const tabs = wrapper.findAll('[role="tab"]')
+    expect(tabs.map((t) => t.text())).toEqual(['Head', 'Browse', 'Search', 'Identity', 'Live'])
+    expect(wrapper.find('[role="tab"][aria-selected="true"]').text()).toBe('Browse')
+    expect(wrapper.find('[data-testid="header-verdict"]').text()).toBe('Verified')
+  })
+
+  it('applies the header shard to the views', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response('[]', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+    const wrapper = await verify('http://node:8080')
+    const field = wrapper.find('[data-testid="shard-form"] input')
+    await field.setValue('other')
+    await wrapper.find('[data-testid="shard-form"]').trigger('submit')
+    await flushPromises()
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]))
+    expect(urls.some((u) => u.includes('shard_id=other'))).toBe(true)
+    vi.unstubAllGlobals()
+  })
 })

@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { AvalonButton, AvalonTextField, AvalonWarningBanner } from '@avalon-initiative/common-ui'
+import { watch } from 'vue'
 import type { EntriesClient } from '../api/entries'
 import { useIdentityTimeline } from '../composables/useIdentityTimeline'
 import styles from '../styles/IdentityTimeline.module.scss'
 import { shortHash } from '../utils/entryView'
 
-const props = defineProps<{ nodeUrl: string; client?: EntriesClient }>()
+const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; client?: EntriesClient }>(), { shard: 'core' })
 const emit = defineEmits<{ open: [target: { shardId: string; seq: number }] }>()
 const state = useIdentityTimeline(props.nodeUrl, props.client)
 const { identityInput, shardInput, shardId, phase, error, matches, groups, scanned, reachedEnd } = state
 
+watch(() => props.shard, (id) => (shardInput.value = id), { immediate: true })
+
 /** Runs the search for one identity in one shard, as when picked from a name search. */
-async function lookup(shard: string, identityId: string) {
+async function lookup(identityId: string) {
   identityInput.value = identityId
-  shardInput.value = shard
   await state.search()
 }
 defineExpose({ lookup })
@@ -25,9 +27,6 @@ defineExpose({ lookup })
     <form :class="styles.form" @submit.prevent="state.search()">
       <div :class="styles.field">
         <AvalonTextField v-model="identityInput" label="Identity id" placeholder="identity:... or a uuid" :disabled="phase === 'scanning'" />
-      </div>
-      <div :class="styles.field">
-        <AvalonTextField v-model="shardInput" label="Shard id" placeholder="core" :disabled="phase === 'scanning'" />
       </div>
       <AvalonButton label="Find entries" :disabled="phase === 'scanning'" @click="state.search()" />
     </form>

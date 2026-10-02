@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { AvalonButton, AvalonTextField, AvalonWarningBanner } from '@avalon-initiative/common-ui'
+import { watch } from 'vue'
 import type { EntriesClient } from '../api/entries'
 import { useNameSearch } from '../composables/useNameSearch'
 import styles from '../styles/NameSearch.module.scss'
 
-const props = defineProps<{ nodeUrl: string; client?: EntriesClient }>()
-const emit = defineEmits<{ timeline: [target: { shardId: string; identityId: string }] }>()
+const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; client?: EntriesClient }>(), { shard: 'core' })
+const emit = defineEmits<{ timeline: [identityId: string] }>()
 const state = useNameSearch(props.nodeUrl, props.client)
 const { queryInput, shardInput, shardId, phase, error, candidates, searched, scanned, reachedEnd } = state
+watch(() => props.shard, (id) => (shardInput.value = id), { immediate: true })
 </script>
 
 <template>
@@ -16,9 +18,6 @@ const { queryInput, shardInput, shardId, phase, error, candidates, searched, sca
     <form :class="styles.form" @submit.prevent="state.search()">
       <div :class="styles.field">
         <AvalonTextField v-model="queryInput" label="Display name" placeholder="part of a name" :disabled="phase === 'scanning'" />
-      </div>
-      <div :class="styles.field">
-        <AvalonTextField v-model="shardInput" label="Shard id" placeholder="core" :disabled="phase === 'scanning'" />
       </div>
       <AvalonButton label="Search names" :disabled="phase === 'scanning'" @click="state.search()" />
     </form>
@@ -41,7 +40,7 @@ const { queryInput, shardInput, shardId, phase, error, candidates, searched, sca
           <span :class="styles.mono">{{ c.identityId }}</span>
           <span :class="styles.mono">seq {{ c.seq }}</span>
           <span v-if="c.sameNameAs > 0" :class="styles.dup" data-testid="name-duplicate">Same name as {{ c.sameNameAs }} other {{ c.sameNameAs === 1 ? 'candidate' : 'candidates' }}</span>
-          <button type="button" :class="styles.link" data-testid="name-timeline" @click="emit('timeline', { shardId, identityId: c.identityId })">Show timeline</button>
+          <button type="button" :class="styles.link" data-testid="name-timeline" @click="emit('timeline', c.identityId)">Show timeline</button>
         </li>
       </ul>
     </template>
