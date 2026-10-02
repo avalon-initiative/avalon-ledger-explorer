@@ -37,3 +37,8 @@ export function entries(count: number, start = 1, kind?: string): LedgerEntry[] 
 export function prunedWire(): Record<string, unknown> {
   return { ...wireEntries(1, 5)[0], payload: null, payload_pruned: true }
 }
+
+/** An `identity.created` entry carrying a display name. */
+export function createdEntry(seq: number, identityId: string, displayName: string): LedgerEntry {
+  return { ...entries(1, seq, 'identity.created')[0], payload: { identity_id: identityId, display_name: displayName } }
+}

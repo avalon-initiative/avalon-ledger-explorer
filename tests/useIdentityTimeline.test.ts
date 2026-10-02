@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { EntriesError } from '../src/api/entries'
 import type { LedgerEntry } from '../src/api/entries'
-import { MAX_SCAN_PAGES, SCAN_PAGE_SIZE, useIdentityTimeline } from '../src/composables/useIdentityTimeline'
+import { MAX_SCAN_PAGES, SCAN_PAGE_SIZE } from '../src/composables/shardScan'
+import { useIdentityTimeline } from '../src/composables/useIdentityTimeline'
 import { entries } from './fixtures/entries'
 
 const ID = 'aeffc91b-0000-4000-8000-000000000001'
