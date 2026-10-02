@@ -45,7 +45,7 @@ describe('Home', () => {
 
   it('shows a verified head with each check', async () => {
     const wrapper = await verify('http://node:8080')
-    expect(getCosignedTreeHead).toHaveBeenCalledWith('http://node:8080')
+    expect(getCosignedTreeHead).toHaveBeenCalledWith('http://node:8080', {})
     expect(wrapper.find('[data-testid="verdict"]').text()).toBe('Verified')
     expect(wrapper.find('[data-testid="check-cosignatures"]').text()).toContain('2 valid, fresh cosignatures from 3 known witnesses; 2 required')
     expect(wrapper.text()).toContain('conformance')

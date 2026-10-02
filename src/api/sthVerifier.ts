@@ -16,7 +16,7 @@ import type { Check, CosignatureSummary, SthReport } from '../utils/sthReport'
 export interface SthVerifierDeps {
   anchorsUrl: string
   fetchAnchors: (url: string) => Promise<TrustAnchorEntry[]>
-  getHead: (nodeUrl: string) => Promise<CosignedTreeHead>
+  getHead: (nodeUrl: string, shardId?: string) => Promise<CosignedTreeHead>
   buildWitnessList: (entry: TrustAnchorEntry) => Promise<KnownWitness[]>
   now: () => Date
 }
@@ -24,7 +24,7 @@ export interface SthVerifierDeps {
 export const defaultDeps: SthVerifierDeps = {
   anchorsUrl: import.meta.env.VITE_AVALON_TRUST_ANCHORS_URL || TRUST_ANCHORS_URL,
   fetchAnchors: (url) => fetchTrustAnchors(url),
-  getHead: (nodeUrl) => getCosignedTreeHead(nodeUrl),
+  getHead: (nodeUrl, shardId) => getCosignedTreeHead(nodeUrl, shardId === undefined ? {} : { shardId }),
   buildWitnessList: (entry) => buildKnownList({ entry }),
   now: () => new Date(),
 }
@@ -54,12 +54,12 @@ function countValid(entry: TrustAnchorEntry, head: CosignedTreeHead, known: Know
   return ids.size
 }
 
-/** Fetches a node's latest cosigned head and verifies it locally; trusts nothing the node says about itself. */
-export async function verifyLatestSth(nodeUrl: string, deps: SthVerifierDeps = defaultDeps): Promise<SthReport> {
+/** Fetches a node's latest cosigned head (of `shardId`, default shard when omitted) and verifies it locally; trusts nothing the node says about itself. */
+export async function verifyLatestSth(nodeUrl: string, deps: SthVerifierDeps = defaultDeps, shardId?: string): Promise<SthReport> {
   const anchorSource = deps.anchorsUrl
   let head: CosignedTreeHead
   try {
-    head = await deps.getHead(nodeUrl)
+    head = await deps.getHead(nodeUrl, shardId)
   } catch (err) {
     return failed(nodeUrl, anchorSource, `Could not read the latest tree head: ${message(err)}`)
   }
