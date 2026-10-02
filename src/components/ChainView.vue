@@ -61,48 +61,52 @@ defineExpose({ goTo: state.goTo })
     <p v-else-if="phase === 'loading' && !window.current" :class="styles.note">Loading the entry.</p>
 
     <div v-if="window.current" :class="styles.row">
-      <button v-if="window.prev" type="button" :class="styles.side" data-testid="chain-prev" @click="state.goTo(window.prev.seq)">
-        <span :class="styles.seq">seq {{ window.prev.seq }}</span>
-        <span>{{ window.prev.kind }}</span>
-        <span :class="styles.mono" :title="window.prev.entry_hash">{{ shortHash(window.prev.entry_hash) }}</span>
-      </button>
-      <div v-else :class="[styles.side, styles.empty]" data-testid="chain-prev-none">Start of the chain</div>
-
-      <span :class="styles.link" :data-state="before" data-testid="chain-link-before">
-        <AvalonStatusBadge :label="linkLabel(before)" :tone="before === 'linked' ? 'success' : before === 'broken' ? 'danger' : 'neutral'" />
-      </span>
+      <div :class="styles.neighbour" data-testid="chain-before">
+        <button v-if="window.prev" type="button" :class="styles.side" data-testid="chain-prev" @click="state.goTo(window.prev.seq)">
+          <span :class="styles.seq">seq {{ window.prev.seq }}</span>
+          <strong>{{ window.prev.kind }}</strong>
+          <span :class="styles.mono" :title="window.prev.entry_hash">{{ shortHash(window.prev.entry_hash) }}</span>
+        </button>
+        <div v-else :class="[styles.side, styles.empty]" data-testid="chain-prev-none">Start of the chain</div>
+        <span :class="styles.link" :data-state="before" data-testid="chain-link-before">
+          <AvalonStatusBadge :label="linkLabel(before)" :tone="before === 'linked' ? 'success' : before === 'broken' ? 'danger' : 'neutral'" />
+        </span>
+      </div>
 
       <article :class="styles.current" aria-label="Current entry" data-testid="chain-current">
         <header :class="styles.head">
           <span :class="styles.seq">seq {{ window.current.seq }}</span>
           <strong>{{ window.current.kind }}</strong>
         </header>
-        <dl :class="styles.fields">
-          <dt>Subject</dt>
-          <dd>{{ window.current.subject }}</dd>
-          <dt>Issuer</dt>
-          <dd>{{ window.current.issuer }}</dd>
-          <dt>Time</dt>
-          <dd :class="styles.mono">{{ window.current.event_timestamp }}</dd>
-          <dt>Entry hash</dt>
-          <dd :class="styles.mono">{{ window.current.entry_hash }}</dd>
-          <dt>Previous hash</dt>
-          <dd :class="styles.mono">{{ window.current.prev_hash }}</dd>
-        </dl>
-        <pre :class="styles.payload" data-testid="chain-payload">{{ payloadText(window.current) }}</pre>
+        <div :class="styles.body">
+          <dl :class="styles.fields">
+            <dt>Subject</dt>
+            <dd>{{ window.current.subject }}</dd>
+            <dt>Issuer</dt>
+            <dd>{{ window.current.issuer }}</dd>
+            <dt>Time</dt>
+            <dd :class="styles.mono">{{ window.current.event_timestamp }}</dd>
+            <dt>Entry hash</dt>
+            <dd :class="styles.mono">{{ window.current.entry_hash }}</dd>
+            <dt>Previous hash</dt>
+            <dd :class="styles.mono">{{ window.current.prev_hash }}</dd>
+          </dl>
+          <pre :class="styles.payload" data-testid="chain-payload">{{ payloadText(window.current) }}</pre>
+        </div>
         <AvalonButton label="Show in list" variant="secondary" @click="emit('show-in-list', { shardId, seq: window.current.seq })" />
       </article>
 
-      <span :class="styles.link" :data-state="after" data-testid="chain-link-after">
-        <AvalonStatusBadge :label="linkLabel(after)" :tone="after === 'linked' ? 'success' : after === 'broken' ? 'danger' : 'neutral'" />
-      </span>
-
-      <button v-if="window.next" type="button" :class="styles.side" data-testid="chain-next" @click="state.goTo(window.next.seq)">
-        <span :class="styles.seq">seq {{ window.next.seq }}</span>
-        <span>{{ window.next.kind }}</span>
-        <span :class="styles.mono" :title="window.next.entry_hash">{{ shortHash(window.next.entry_hash) }}</span>
-      </button>
-      <div v-else :class="[styles.side, styles.empty]" data-testid="chain-next-none">End of the chain</div>
+      <div :class="styles.neighbour" data-testid="chain-after">
+        <button v-if="window.next" type="button" :class="styles.side" data-testid="chain-next" @click="state.goTo(window.next.seq)">
+          <span :class="styles.seq">seq {{ window.next.seq }}</span>
+          <strong>{{ window.next.kind }}</strong>
+          <span :class="styles.mono" :title="window.next.entry_hash">{{ shortHash(window.next.entry_hash) }}</span>
+        </button>
+        <div v-else :class="[styles.side, styles.empty]" data-testid="chain-next-none">End of the chain</div>
+        <span :class="styles.link" :data-state="after" data-testid="chain-link-after">
+          <AvalonStatusBadge :label="linkLabel(after)" :tone="after === 'linked' ? 'success' : after === 'broken' ? 'danger' : 'neutral'" />
+        </span>
+      </div>
     </div>
   </section>
 </template>
