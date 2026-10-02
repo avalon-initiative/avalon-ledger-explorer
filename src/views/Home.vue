@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import IdentityTimeline from '../components/IdentityTimeline.vue'
+import NameSearch from '../components/NameSearch.vue'
 import NodeUrlForm from '../components/NodeUrlForm.vue'
 import ShardEntries from '../components/ShardEntries.vue'
 import SthReport from '../components/SthReport.vue'
@@ -8,6 +9,7 @@ import { useSthVerification } from '../composables/useSthVerification'
 import styles from '../styles/Home.module.scss'
 
 const shardEntries = ref<InstanceType<typeof ShardEntries> | null>(null)
+const timeline = ref<InstanceType<typeof IdentityTimeline> | null>(null)
 const { nodeUrl, phase, error, report, submit } = useSthVerification()
 </script>
 
@@ -20,7 +22,8 @@ const { nodeUrl, phase, error, report, submit } = useSthVerification()
     </p>
     <NodeUrlForm v-model:node-url="nodeUrl" :busy="phase === 'verifying'" :error="error" @submit="submit" />
     <SthReport v-if="report" :report="report" />
-    <IdentityTimeline v-if="report" :key="`timeline-${report.nodeUrl}`" :node-url="report.nodeUrl" @open="({ shardId, seq }) => shardEntries?.jumpTo(shardId, seq)" />
+    <NameSearch v-if="report" :key="`names-${report.nodeUrl}`" :node-url="report.nodeUrl" @timeline="({ shardId, identityId }) => timeline?.lookup(shardId, identityId)" />
+    <IdentityTimeline v-if="report" ref="timeline" :key="`timeline-${report.nodeUrl}`" :node-url="report.nodeUrl" @open="({ shardId, seq }) => shardEntries?.jumpTo(shardId, seq)" />
     <ShardEntries v-if="report" ref="shardEntries" :key="report.nodeUrl" :node-url="report.nodeUrl" />
   </main>
 </template>

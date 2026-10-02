@@ -9,6 +9,14 @@ const props = defineProps<{ nodeUrl: string; client?: EntriesClient }>()
 const emit = defineEmits<{ open: [target: { shardId: string; seq: number }] }>()
 const state = useIdentityTimeline(props.nodeUrl, props.client)
 const { identityInput, shardInput, shardId, phase, error, matches, groups, scanned, reachedEnd } = state
+
+/** Runs the search for one identity in one shard, as when picked from a name search. */
+async function lookup(shard: string, identityId: string) {
+  identityInput.value = identityId
+  shardInput.value = shard
+  await state.search()
+}
+defineExpose({ lookup })
 </script>
 
 <template>

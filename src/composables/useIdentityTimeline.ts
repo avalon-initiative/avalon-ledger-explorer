@@ -1,11 +1,8 @@
 import { computed, ref, shallowRef } from 'vue'
 import { entriesClient } from '../api/entries'
 import type { EntriesClient, LedgerEntry } from '../api/entries'
+import { scanShard } from './shardScan'
 import { groupByKind, namesIdentity, parseIdentityId } from '../utils/timelineView'
-
-export const SCAN_PAGE_SIZE = 1000
-/** Pages scanned per run; a longer shard needs the scan continued. */
-export const MAX_SCAN_PAGES = 20
 
 export type TimelinePhase = 'idle' | 'scanning' | 'done' | 'failed'
 
@@ -26,19 +23,13 @@ export function useIdentityTimeline(nodeUrl: string, client: EntriesClient = ent
   const groups = computed(() => groupByKind(matches.value))
 
   async function scan(fromSeq: number, mine: number, id: string) {
-    let since = fromSeq
-    for (let page = 0; page < MAX_SCAN_PAGES; page++) {
-      const rows = await client.listEntries(nodeUrl, { shardId: shardId.value, sinceSeq: since, limit: SCAN_PAGE_SIZE })
-      if (mine !== run) return
+    const onRows = (rows: LedgerEntry[]) => {
       scanned.value += rows.length
       matches.value = [...matches.value, ...rows.filter((e) => namesIdentity(e, id))]
-      if (rows.length > 0) since = rows[rows.length - 1].seq
-      lastSeq.value = since
-      if (rows.length < SCAN_PAGE_SIZE) {
-        reachedEnd.value = true
-        return
-      }
     }
+    const result = await scanShard(client, { nodeUrl, shardId: shardId.value, fromSeq, isStale: () => mine !== run, onRows })
+    lastSeq.value = result.lastSeq
+    reachedEnd.value = result.reachedEnd
   }
 
   async function startScan(fromSeq: number) {
