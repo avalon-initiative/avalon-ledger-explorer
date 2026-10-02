@@ -69,15 +69,19 @@ async function openEntry({ seq }: { shardId: string; seq: number }) {
       @connect="c.connect"
       @use-node="c.useNode"
       @submit-url="c.submitUrl"
-    />
-    <template v-if="report">
-      <form :class="styles.bar" data-testid="shard-form" @submit.prevent="setShard">
+>
+      <div v-if="report" :class="styles.verdictGroup">
+        <span :class="styles.label">Tree head</span>
         <AvalonStatusBadge :label="verdict(report).label" :tone="verdict(report).tone" data-testid="header-verdict" />
+      </div>
+      <form v-if="report" :class="styles.shardForm" data-testid="shard-form" @submit.prevent="setShard">
         <div :class="styles.shard">
-          <AvalonTextField v-model="shardInput" label="Shard id" placeholder="core" />
+          <AvalonTextField v-model="shardInput" label="Shard" placeholder="core" />
         </div>
         <AvalonButton label="Set shard" variant="secondary" @click="setShard" />
       </form>
+    </NetworkConnect>
+    <template v-if="report">
       <AvalonTabs v-model="tab" :tabs="TABS" label="Explorer views" :class="styles.tabs">
         <template #head><SthReport :report="report" /></template>
         <template #browse><BrowsePanel ref="browse" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" /></template>
