@@ -2,7 +2,8 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { anchor, head, NOW, witnesses } from './fixtures/heads'
 
-const { getCosignedTreeHead, fetchTrustAnchors, buildKnownList } = vi.hoisted(() => ({
+const { getCosignedTreeHead, fetchTrustAnchors, buildKnownList, discoverAmong } = vi.hoisted(() => ({
+  discoverAmong: vi.fn(),
   getCosignedTreeHead: vi.fn(),
   fetchTrustAnchors: vi.fn(),
   buildKnownList: vi.fn(),
@@ -12,6 +13,7 @@ vi.mock('@avalon-initiative/protocol-sdk', async (importOriginal) => ({
   getCosignedTreeHead,
   fetchTrustAnchors,
   buildKnownList,
+  discoverAmong,
 }))
 
 import Home from '../src/views/Home.vue'
@@ -31,6 +33,7 @@ describe('Home', () => {
     getCosignedTreeHead.mockReset().mockResolvedValue(head())
     fetchTrustAnchors.mockReset().mockResolvedValue([anchor])
     buildKnownList.mockReset().mockResolvedValue(witnesses)
+    discoverAmong.mockReset().mockResolvedValue({ serverUrl: 'http://seed-a', entry: anchor, verified: [{ serverUrl: 'http://seed-a', latencyMs: null }] })
   })
 
   it('shows no result before a run', () => {
@@ -63,5 +66,15 @@ describe('Home', () => {
     const wrapper = await verify('http://node')
     expect(wrapper.text()).toContain('connection refused')
     expect(wrapper.find('[data-testid="verdict"]').text()).toBe('Not verified')
+  })
+
+  it('connects from a published network without a typed URL', async () => {
+    const wrapper = mount(Home)
+    await flushPromises()
+    await wrapper.find('[data-testid="network-button"]').trigger('click')
+    await flushPromises()
+    expect(getCosignedTreeHead).toHaveBeenCalledWith('http://seed-a', {})
+    expect(wrapper.find('[data-testid="verdict"]').text()).toBe('Verified')
+    expect(wrapper.find('[data-testid="current-node"]').text()).toContain('seed-a')
   })
 })

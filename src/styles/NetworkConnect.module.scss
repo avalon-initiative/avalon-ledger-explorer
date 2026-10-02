@@ -1,0 +1,28 @@
+.connect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--av-space-3);
+}
+
+.networks,
+.nodes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--av-space-3);
+}
+
+.note {
+  margin: 0;
+  font-size: var(--av-text-sm);
+  color: var(--av-color-text-secondary);
+}
+
+.manual {
+  font-size: var(--av-text-sm);
+
+  summary {
+    cursor: pointer;
+    margin-bottom: var(--av-space-3);
+  }
+}
