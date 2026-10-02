@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { AvalonButton, AvalonStatusBadge, AvalonTextField, AvalonWarningBanner } from '@avalon-initiative/common-ui'
 import { onMounted, watch } from 'vue'
+import EntryDetail from './EntryDetail.vue'
 import { useChainNavigator } from '../composables/useChainNavigator'
 import type { ChainDeps } from '../composables/useChainNavigator'
 import styles from '../styles/ChainView.module.scss'
 import { linkLabel } from '../utils/chainLinks'
-import { payloadText, shortHash } from '../utils/entryView'
+import { shortHash } from '../utils/entryView'
 import { describeKind } from '../utils/kindInfo'
-import { formatTime } from '../utils/timeView'
 
 const props = withDefaults(defineProps<{ nodeUrl: string; shard?: string; deps?: ChainDeps }>(), { shard: 'core' })
 const emit = defineEmits<{ 'show-in-list': [target: { shardId: string; seq: number }] }>()
@@ -84,22 +84,7 @@ defineExpose({ goTo: state.goTo })
           <span :class="styles.seq">seq {{ window.current.seq }}</span>
           <strong>{{ window.current.kind }}</strong>
         </header>
-        <p :class="styles.meaning" data-testid="chain-meaning">{{ describeKind(window.current.kind) }}</p>
-        <div :class="styles.body">
-          <dl :class="styles.fields">
-            <dt>Subject</dt>
-            <dd>{{ window.current.subject }}</dd>
-            <dt>Issuer</dt>
-            <dd>{{ window.current.issuer }}</dd>
-            <dt>Time</dt>
-            <dd :title="window.current.event_timestamp">{{ formatTime(window.current.event_timestamp) }}</dd>
-            <dt>Entry hash</dt>
-            <dd :class="styles.mono">{{ window.current.entry_hash }}</dd>
-            <dt>Previous hash</dt>
-            <dd :class="styles.mono">{{ window.current.prev_hash }}</dd>
-          </dl>
-          <pre :class="styles.payload" data-testid="chain-payload">{{ payloadText(window.current) }}</pre>
-        </div>
+        <EntryDetail :entry="window.current" />
         <AvalonButton label="Show in list" variant="secondary" @click="emit('show-in-list', { shardId, seq: window.current.seq })" />
       </article>
 

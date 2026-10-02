@@ -43,4 +43,23 @@ describe('LiveFeed', () => {
     wrapper.unmount()
     expect(stopper).toHaveBeenCalled()
   })
+
+  it('opens an entry in a drawer with its full detail, and closes it', async () => {
+    const { wrapper } = await started()
+    expect(wrapper.find('[data-testid="feed-drawer"]').exists()).toBe(false)
+    await wrapper.findAll('[data-testid="feed-open"]')[0].trigger('click')
+    const drawer = wrapper.find('[data-testid="feed-drawer"]')
+    expect(drawer.text()).toContain('Entry 10')
+    expect(drawer.find('[data-testid="entry-payload"]').text()).toContain('credential_id')
+    expect(drawer.find('[data-testid="entry-meaning"]').text()).toContain('passkey')
+    await drawer.find('button[aria-label="Close entry"]').trigger('click')
+    expect(wrapper.find('[data-testid="feed-drawer"]').exists()).toBe(false)
+  })
+
+  it('asks to open the inspected entry in the chain view', async () => {
+    const { wrapper } = await started()
+    await wrapper.findAll('[data-testid="feed-open"]')[0].trigger('click')
+    await wrapper.find('[data-testid="feed-open-chain"]').trigger('click')
+    expect(wrapper.emitted('open-entry')?.[0]).toEqual([{ shardId: 'core', seq: 10 }])
+  })
 })

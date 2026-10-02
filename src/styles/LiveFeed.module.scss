@@ -1,7 +1,31 @@
 .feed {
   display: flex;
-  flex-direction: column;
+  align-items: stretch;
   gap: var(--av-space-4);
+  flex: 1;
+  min-height: 0;
+
+  @media (max-width: 64rem) {
+    flex-direction: column;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  gap: var(--av-space-3);
+  min-width: 0;
+  min-height: 0;
+}
+
+.drawer {
+  flex: 0 0 min(32rem, 40%);
+  min-width: 0;
+
+  @media (max-width: 64rem) {
+    flex: none;
+  }
 }
 
 .heading {
@@ -35,17 +59,46 @@
 }
 
 .list {
+  flex: 1;
+  min-height: 0;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
   list-style: none;
+
+  @media (max-width: 64rem) {
+    overflow-y: visible;
+  }
 }
 
 .item {
   display: flex;
   flex-wrap: wrap;
+  box-sizing: border-box;
+  width: 100%;
   gap: var(--av-space-4);
-  padding: var(--av-space-1) 0;
+  padding: var(--av-space-2);
+  border: 0;
+  border-radius: var(--av-radius-sm);
+  background: none;
+  color: inherit;
+  font: inherit;
   font-size: var(--av-text-sm);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--av-color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--av-color-primary);
+  }
+}
+
+.chosen {
+  background: var(--av-color-surface-hover);
+  box-shadow: inset 3px 0 0 var(--av-color-primary);
 }
 
 .mono {
