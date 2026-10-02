@@ -28,7 +28,7 @@ describe('verifyLatestSth', () => {
   it('asks the node, never the node, for the witness list', async () => {
     const d = deps()
     await verifyLatestSth('http://node', d)
-    expect(d.getHead).toHaveBeenCalledWith('http://node')
+    expect(d.getHead).toHaveBeenCalledWith('http://node', undefined)
     expect(d.buildWitnessList).toHaveBeenCalledWith(anchor)
   })
 

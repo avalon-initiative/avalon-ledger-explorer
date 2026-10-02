@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import NodeUrlForm from '../components/NodeUrlForm.vue'
+import ShardEntries from '../components/ShardEntries.vue'
 import SthReport from '../components/SthReport.vue'
 import { useSthVerification } from '../composables/useSthVerification'
 import styles from '../styles/Home.module.scss'
@@ -16,5 +17,6 @@ const { nodeUrl, phase, error, report, submit } = useSthVerification()
     </p>
     <NodeUrlForm v-model:node-url="nodeUrl" :busy="phase === 'verifying'" :error="error" @submit="submit" />
     <SthReport v-if="report" :report="report" />
+    <ShardEntries v-if="report" :key="report.nodeUrl" :node-url="report.nodeUrl" />
   </main>
 </template>
