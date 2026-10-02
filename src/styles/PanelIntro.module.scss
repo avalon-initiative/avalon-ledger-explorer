@@ -1,0 +1,17 @@
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--av-space-1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--av-text-lg);
+}
+
+.text {
+  margin: 0;
+  max-width: 60rem;
+  font-size: var(--av-text-base);
+  color: var(--av-color-text-secondary);
+}

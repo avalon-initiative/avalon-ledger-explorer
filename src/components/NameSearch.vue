@@ -14,7 +14,6 @@ watch(() => props.shard, (id) => (shardInput.value = id), { immediate: true })
 
 <template>
   <section :class="styles.search" aria-label="Display name search" data-testid="name-search">
-    <h2 :class="styles.heading">Find an identity by display name</h2>
     <form :class="styles.form" @submit.prevent="state.search()">
       <div :class="styles.field">
         <AvalonTextField v-model="queryInput" label="Display name" placeholder="part of a name" :disabled="phase === 'scanning'" />
@@ -25,7 +24,8 @@ watch(() => props.shard, (id) => (shardInput.value = id), { immediate: true })
       Scans the identity.created entries of this shard. Names are not unique on the ledger and nodes project them independently, so these are candidates keyed by identity id, not a verified lookup.
     </p>
 
-    <AvalonWarningBanner v-if="phase === 'failed'" tone="danger" title="Could not search names" :message="error" />
+    <p v-if="phase === 'idle'" :class="styles.note" data-testid="name-idle">Type part of a display name and press Search names. The search reads the shard's identity entries, so a large shard takes a moment.</p>
+    <AvalonWarningBanner v-else-if="phase === 'failed'" tone="danger" title="Could not search names" :message="error" />
     <p v-else-if="phase === 'scanning'" :class="styles.note">Scanning shard {{ shardId }}: {{ scanned }} entries read, {{ candidates.length }} found.</p>
     <template v-else-if="phase === 'done'">
       <p :class="styles.note" data-testid="name-status">
