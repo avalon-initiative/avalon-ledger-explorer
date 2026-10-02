@@ -37,6 +37,7 @@ defineExpose({ goTo: state.goTo })
 <template>
   <section :class="styles.chain" aria-label="Chain view" data-testid="chain-view" tabindex="0" @keydown="onKey">
     <div :class="styles.controls">
+      <slot name="lead" />
       <AvalonButton label="First" variant="secondary" :disabled="phase === 'loading' || seq === 1" @click="state.goTo(1)" />
       <AvalonButton label="Previous" variant="secondary" :disabled="phase === 'loading' || !canStep.back" @click="state.step(-1)" />
       <AvalonButton label="Next" variant="secondary" :disabled="phase === 'loading' || !canStep.forward" @click="state.step(1)" />
@@ -45,18 +46,18 @@ defineExpose({ goTo: state.goTo })
         <AvalonTextField v-model="seqInput" label="Seq" placeholder="seq" :disabled="phase === 'loading'" />
         <AvalonButton label="Go" @click="state.goToInput()" />
       </form>
+      <input
+        v-if="latest > 1"
+        :class="styles.slider"
+        type="range"
+        min="1"
+        :max="latest"
+        :value="seq"
+        aria-label="Position in the shard: drag to jump to any entry"
+        data-testid="chain-slider"
+        @change="state.goTo(Number(($event.target as HTMLInputElement).value))"
+      />
     </div>
-    <input
-      v-if="latest > 1"
-      :class="styles.slider"
-      type="range"
-      min="1"
-      :max="latest"
-      :value="seq"
-      aria-label="Position in the shard: drag to jump to any entry"
-      data-testid="chain-slider"
-      @change="state.goTo(Number(($event.target as HTMLInputElement).value))"
-    />
     <p :class="styles.note" data-testid="chain-position">Shard {{ shardId }}: entry {{ seq }}{{ latest ? ` of ${latest}` : '' }}. Arrow keys step along the chain. Listed, not individually proven.</p>
 
     <AvalonWarningBanner v-if="phase === 'failed'" tone="danger" title="Could not show this entry" :message="error" />

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { AvalonButton } from '@avalon-initiative/common-ui'
 import { ref } from 'vue'
 import styles from '../styles/BrowsePanel.module.scss'
 import ChainView from './ChainView.vue'
 import ShardEntries from './ShardEntries.vue'
+import ViewToggle from './ViewToggle.vue'
 
 withDefaults(defineProps<{ nodeUrl: string; shard?: string }>(), { shard: 'core' })
 const view = ref<'chain' | 'list'>('chain')
@@ -26,11 +26,12 @@ defineExpose({ showEntry })
 
 <template>
   <section :class="styles.browse" aria-label="Browse the ledger">
-    <div :class="styles.toggle" role="group" aria-label="Browse as">
-      <AvalonButton label="Chain" :variant="view === 'chain' ? 'primary' : 'secondary'" data-testid="view-chain" @click="view = 'chain'" />
-      <AvalonButton label="List" :variant="view === 'list' ? 'primary' : 'secondary'" data-testid="view-list" @click="view = 'list'" />
+    <ChainView v-show="view === 'chain'" ref="chain" :node-url="nodeUrl" :shard="shard" @show-in-list="showInList">
+      <template #lead><ViewToggle :view="view" @select="view = $event" /></template>
+    </ChainView>
+    <div v-show="view === 'list'" :class="styles.list">
+      <ViewToggle :view="view" @select="view = $event" />
+      <ShardEntries ref="list" :node-url="nodeUrl" :shard="shard" />
     </div>
-    <ChainView v-show="view === 'chain'" ref="chain" :node-url="nodeUrl" :shard="shard" @show-in-list="showInList" />
-    <ShardEntries v-show="view === 'list'" ref="list" :node-url="nodeUrl" :shard="shard" />
   </section>
 </template>

@@ -1,17 +1,25 @@
 .intro {
   display: flex;
-  flex-direction: column;
-  gap: var(--av-space-1);
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--av-space-1) var(--av-space-4);
 }
 
 .title {
   margin: 0;
-  font-size: var(--av-text-lg);
+  font-size: var(--av-text-md);
 }
 
 .text {
   margin: 0;
-  max-width: 60rem;
-  font-size: var(--av-text-base);
+  flex: 1 1 24rem;
+  font-size: var(--av-text-sm);
   color: var(--av-color-text-secondary);
+}
+
+// On a short screen the introduction gives way to the content; the tab name, the welcome and the tooltips still explain.
+@media (min-width: 64rem) and (max-height: 50rem) {
+  .intro {
+    display: none;
+  }
 }

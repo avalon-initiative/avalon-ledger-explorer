@@ -45,9 +45,9 @@ const nodeOptions = computed(() => nodeChoices(props.nodes))
           data-testid="network-select"
           @update:model-value="$emit('connect', $event)"
         />
-        <span v-if="!loading && !loadError" :class="styles.hint">{{ networks.length ? 'Pick one to connect' : 'No published network lists a node to connect to.' }}</span>
+        <span v-if="!loading && !loadError && networks.length === 0" :class="styles.hint">No published network lists a node to connect to.</span>
       </div>
-      <div v-if="nodes.length" :class="styles.group" data-testid="node-choices">
+      <div v-if="nodes.length" :class="styles.group" title="Nodes publishing a head signed by this network, fastest first" data-testid="node-choices">
         <AvalonSelect
           :model-value="currentNode"
           :options="nodeOptions"
@@ -60,19 +60,18 @@ const nodeOptions = computed(() => nodeChoices(props.nodes))
           data-testid="node-select"
           @update:model-value="$emit('use-node', $event)"
         />
-        <span :class="styles.hint">Nodes publishing a head signed by this network, fastest first</span>
       </div>
       <div v-else-if="currentNode" :class="styles.group">
         <span :class="styles.label">Node</span>
         <AvalonStatusBadge :label="hostOf(currentNode)" tone="neutral" data-testid="current-node" />
       </div>
       <slot />
+      <details :class="styles.manual">
+        <summary>Use a node URL instead</summary>
+        <NodeUrlForm v-model:node-url="nodeUrl" :busy="busy" :error="urlError" @submit="$emit('submit-url')" />
+      </details>
     </div>
     <p v-if="connecting" :class="styles.note" data-testid="connecting">Looking for a node that verifies as {{ selected }}.</p>
     <AvalonWarningBanner v-if="connectError" tone="danger" title="Could not connect to the network" :message="connectError" />
-    <details :class="styles.manual">
-      <summary>Use a node URL instead</summary>
-      <NodeUrlForm v-model:node-url="nodeUrl" :busy="busy" :error="urlError" @submit="$emit('submit-url')" />
-    </details>
   </section>
 </template>

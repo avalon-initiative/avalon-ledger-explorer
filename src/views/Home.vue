@@ -51,8 +51,10 @@ async function openEntry({ seq }: { shardId: string; seq: number }) {
 
 <template>
   <main :class="styles.page">
-    <h1 :class="styles.title">Avalon ledger explorer</h1>
-    <p :class="styles.lede">Look through an Avalon network's ledger and check it for yourself. Nothing a node says about itself is taken on trust.</p>
+    <header :class="styles.top">
+      <h1 :class="styles.title">Avalon ledger explorer</h1>
+      <p :class="styles.lede">Look through an Avalon network's ledger and check it for yourself. Nothing a node says about itself is taken on trust.</p>
+    </header>
     <NetworkConnect
       v-model:node-url="nodeUrl"
       :networks="networks"
@@ -68,15 +70,14 @@ async function openEntry({ seq }: { shardId: string; seq: number }) {
       @connect="c.connect"
       @use-node="c.useNode"
       @submit-url="c.submitUrl"
->
-      <div v-if="report" :class="styles.shardGroup">
+    >
+      <div v-if="report" :class="styles.shardGroup" title="A shard is one independent ledger; most networks use core">
         <form :class="styles.shardForm" data-testid="shard-form" @submit.prevent="setShard">
           <div :class="styles.shard">
             <AvalonTextField v-model="shardInput" label="Shard" placeholder="core" />
           </div>
           <AvalonButton label="Set shard" variant="secondary" @click="setShard" />
         </form>
-        <span :class="styles.hint">A shard is one independent ledger; most networks use core</span>
       </div>
     </NetworkConnect>
     <WelcomePanel v-if="!report" />
@@ -84,24 +85,34 @@ async function openEntry({ seq }: { shardId: string; seq: number }) {
       <HeadSummary :report="report" @details="tab = 'head'" />
       <AvalonTabs v-model="tab" :tabs="TABS" size="lg" label="Explorer views" :class="styles.tabs">
         <template #head>
-          <PanelIntro :class="styles.intro" title="The signed head" text="The network operator signs a tree head: a short fingerprint of the whole ledger. Independent witnesses cosign it. These are the checks this page ran on the node." />
-          <SthReport :report="report" />
+          <div :class="styles.pane">
+            <PanelIntro :class="styles.intro" title="The signed head" text="The network operator signs a tree head: a short fingerprint of the whole ledger. Independent witnesses cosign it. These are the checks this page ran on the node." />
+            <SthReport :report="report" />
+          </div>
         </template>
         <template #browse>
-          <PanelIntro :class="styles.intro" title="Browse the ledger" text="Step through entries one at a time. Each entry holds the hash of the one before it, so a changed or missing entry breaks the link. Use the arrow keys or jump to any position." />
-          <BrowsePanel ref="browse" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" />
+          <div :class="styles.pane">
+            <PanelIntro :class="styles.intro" title="Browse the ledger" text="Step through entries one at a time. Each entry holds the hash of the one before it, so a changed or missing entry breaks the link. Use the arrow keys or jump to any position." />
+            <BrowsePanel ref="browse" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" />
+          </div>
         </template>
         <template #search>
-          <PanelIntro :class="styles.intro" title="Find an identity by name" text="Search display names. Names are not unique on the ledger, so you get candidates; open one to see everything that identity did." />
-          <NameSearch :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @timeline="showTimeline" />
+          <div :class="styles.pane">
+            <PanelIntro :class="styles.intro" title="Find an identity by name" text="Search display names. Names are not unique on the ledger, so you get candidates; open one to see everything that identity did." />
+            <NameSearch :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @timeline="showTimeline" />
+          </div>
         </template>
         <template #identity>
-          <PanelIntro :class="styles.intro" title="Follow one identity" text="Everything one identity has done, grouped by what happened. Paste an identity id, or pick one from a search." />
-          <IdentityTimeline ref="timeline" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @open="openEntry" />
+          <div :class="styles.pane">
+            <PanelIntro :class="styles.intro" title="Follow one identity" text="Everything one identity has done, grouped by what happened. Paste an identity id, or pick one from a search." />
+            <IdentityTimeline ref="timeline" :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @open="openEntry" />
+          </div>
         </template>
         <template #live>
-          <PanelIntro :class="styles.intro" title="Watch new entries arrive" text="Start the feed to see entries as they are added, newest first. Pause any time, filter by kind, or follow one identity." />
-          <LiveFeed :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" />
+          <div :class="styles.pane">
+            <PanelIntro :class="styles.intro" title="Watch new entries arrive" text="Start the feed to see entries as they are added, newest first. Pause any time, filter by kind, or follow one identity." />
+            <LiveFeed :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" />
+          </div>
         </template>
       </AvalonTabs>
     </template>
