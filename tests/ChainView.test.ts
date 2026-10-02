@@ -32,7 +32,7 @@ describe('ChainView', () => {
 
   it('shows the payload and steps to the previous entry on click', async () => {
     const wrapper = await view()
-    expect(wrapper.find('[data-testid="chain-payload"]').text()).toContain('credential_id')
+    expect(wrapper.find('[data-testid="entry-payload"]').text()).toContain('credential_id')
     await wrapper.find('[data-testid="chain-prev"]').trigger('click')
     await flushPromises()
     expect(wrapper.find('[data-testid="chain-current"]').text()).toContain('seq 9')

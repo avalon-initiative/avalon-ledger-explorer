@@ -111,7 +111,7 @@ async function openEntry({ seq }: { shardId: string; seq: number }) {
         <template #live>
           <div :class="styles.pane">
             <PanelIntro :class="styles.intro" title="Watch new entries arrive" text="Start the feed to see entries as they are added, newest first. Pause any time, filter by kind, or follow one identity." />
-            <LiveFeed :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" />
+            <LiveFeed :key="report.nodeUrl" :node-url="report.nodeUrl" :shard="shard" @open-entry="openEntry" />
           </div>
         </template>
       </AvalonTabs>
