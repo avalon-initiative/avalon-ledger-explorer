@@ -1,0 +1,62 @@
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: var(--av-space-4);
+}
+
+.heading,
+.groupTitle {
+  margin: 0;
+}
+
+.form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--av-space-4);
+}
+
+.field {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.note {
+  margin: 0;
+  font-size: var(--av-text-sm);
+  color: var(--av-color-text-secondary);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--av-space-2);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--av-space-4);
+  padding: var(--av-space-1) 0;
+  font-size: var(--av-text-sm);
+}
+
+.mono {
+  font-family: var(--av-font-mono, monospace);
+}
+
+.link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

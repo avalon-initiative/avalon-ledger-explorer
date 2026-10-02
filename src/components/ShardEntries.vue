@@ -10,7 +10,8 @@ import { verdict } from '../utils/sthView'
 const props = defineProps<{ nodeUrl: string; deps?: ShardEntriesDeps }>()
 const state = useShardEntries(props.nodeUrl, props.deps)
 const { shardInput, shardId, phase, error, head, selectedKinds, expanded, hasPrevious, hasNext, visible, kinds, continuity, entries, sinceSeq } = state
-onMounted(state.load)
+onMounted(() => state.load())
+defineExpose({ jumpTo: state.jumpTo })
 </script>
 
 <template>

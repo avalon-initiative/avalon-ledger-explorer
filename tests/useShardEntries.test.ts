@@ -93,4 +93,11 @@ describe('useShardEntries', () => {
     await first
     expect(state.entries.value.map((e) => e.seq)).toEqual([9])
   })
+
+  it('jumps to the page holding an entry and expands it', async () => {
+    const { state, listEntries } = setup([entries(3, 7)])
+    await state.jumpTo('other', 7)
+    expect(listEntries).toHaveBeenCalledWith('http://node', { shardId: 'other', sinceSeq: 6, limit: PAGE_SIZE })
+    expect(state.expanded.value).toEqual([7])
+  })
 })
