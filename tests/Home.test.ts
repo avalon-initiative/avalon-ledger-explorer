@@ -18,6 +18,12 @@ vi.mock('@avalon-initiative/protocol-sdk', async (importOriginal) => ({
 
 import Home from '../src/views/Home.vue'
 
+async function pickNetwork(wrapper: ReturnType<typeof mount>, filter = '') {
+  await wrapper.find('[data-testid="network-select"] button').trigger('click')
+  if (filter) await wrapper.find('[data-testid="network-select"] input').setValue(filter)
+  await wrapper.find('[data-testid="network-select"] [role="option"]').trigger('click')
+}
+
 async function verify(url: string) {
   const wrapper = mount(Home)
   await wrapper.find('input[type="text"]').setValue(url)
@@ -71,11 +77,11 @@ describe('Home', () => {
   it('connects from a published network without a typed URL', async () => {
     const wrapper = mount(Home)
     await flushPromises()
-    await wrapper.find('[data-testid="network-button"]').trigger('click')
+    await pickNetwork(wrapper)
     await flushPromises()
     expect(getCosignedTreeHead).toHaveBeenCalledWith('http://seed-a', {})
     expect(wrapper.find('[data-testid="verdict"]').text()).toBe('Verified')
-    expect(wrapper.find('[data-testid="current-node"]').text()).toContain('seed-a')
+    expect(wrapper.find('[data-testid="node-select"] button').text()).toContain('seed-a')
   })
 
   it('shows the views as tabs, with the entries first and the head one tab away', async () => {
@@ -103,7 +109,7 @@ describe('Home', () => {
     const wrapper = mount(Home)
     await flushPromises()
     expect(wrapper.find('[data-testid="welcome"]').text()).toContain('Choose a network')
-    await wrapper.find('[data-testid="network-button"]').trigger('click')
+    await pickNetwork(wrapper)
     await flushPromises()
     expect(wrapper.find('[data-testid="welcome"]').exists()).toBe(false)
     expect(wrapper.find('[data-testid="head-summary"]').text()).toContain('Signed by the network and witnessed')
@@ -113,5 +119,24 @@ describe('Home', () => {
     const wrapper = await verify('http://node:8080')
     await wrapper.findAll('button').find((b) => b.text() === 'See the checks')?.trigger('click')
     expect(wrapper.find('[role="tab"][aria-selected="true"]').text()).toBe('Head')
+  })
+
+  it('filters the networks as you type and lets you switch node from a dropdown', async () => {
+    discoverAmong.mockResolvedValue({ serverUrl: 'http://seed-a', entry: anchor, verified: [{ serverUrl: 'http://seed-a', latencyMs: 3 }, { serverUrl: 'http://seed-b', latencyMs: 9 }] })
+    fetchTrustAnchors.mockResolvedValue([anchor, { ...anchor, network_id: 'other-net', label: 'other' }])
+    const wrapper = mount(Home)
+    await flushPromises()
+    await wrapper.find('[data-testid="network-select"] button').trigger('click')
+    expect(wrapper.findAll('[data-testid="network-select"] [role="option"]')).toHaveLength(2)
+    await wrapper.find('[data-testid="network-select"] input').setValue('other')
+    expect(wrapper.findAll('[data-testid="network-select"] [role="option"]').map((o) => o.text())).toEqual([expect.stringContaining('other-net')])
+    await wrapper.find('[data-testid="network-select"] input').setValue('')
+    await wrapper.find('[data-testid="network-select"] [role="option"]').trigger('click')
+    await flushPromises()
+    await wrapper.find('[data-testid="node-select"] button').trigger('click')
+    expect(wrapper.findAll('[data-testid="node-select"] [role="option"]')).toHaveLength(2)
+    await wrapper.findAll('[data-testid="node-select"] [role="option"]')[1].trigger('click')
+    await flushPromises()
+    expect(getCosignedTreeHead).toHaveBeenCalledWith('http://seed-b', {})
   })
 })
