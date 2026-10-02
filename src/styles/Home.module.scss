@@ -4,11 +4,27 @@
   gap: var(--av-space-4);
   box-sizing: border-box;
   width: 100%;
-  padding: var(--av-space-5) var(--av-space-6);
+  height: 100dvh;
+  padding: var(--av-space-4) var(--av-space-6);
+  overflow: hidden;
+
+  // Narrow or short screens keep the natural page and let it scroll.
+  @media (max-width: 64rem), (max-height: 40rem) {
+    height: auto;
+    overflow: visible;
+  }
+}
+
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--av-space-1) var(--av-space-5);
 }
 
 .title {
   margin: 0;
+  font-size: var(--av-text-xl);
 }
 
 .lede {
@@ -35,11 +51,26 @@
 }
 
 .tabs {
+  flex: 1;
   min-width: 0;
+  min-height: 0;
+
+  @media (max-width: 64rem), (max-height: 40rem) {
+    flex: none;
+  }
 }
 
-.intro {
-  margin: var(--av-space-4) 0;
+// Fills the tab panel so a view can size its own content and scroll it inside.
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--av-space-3);
+  height: 100%;
+  min-height: 0;
+
+  @media (max-width: 64rem), (max-height: 40rem) {
+    height: auto;
+  }
 }
 
 .hint {
