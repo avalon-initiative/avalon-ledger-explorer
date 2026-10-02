@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { AvalonButton, AvalonStatusBadge, AvalonWarningBanner } from '@avalon-initiative/common-ui'
+import { AvalonSelect, AvalonStatusBadge, AvalonWarningBanner } from '@avalon-initiative/common-ui'
 import type { VerifiedCandidate } from '@avalon-initiative/protocol-sdk'
+import { computed } from 'vue'
 import type { NetworkOption } from '../api/network'
 import styles from '../styles/NetworkConnect.module.scss'
+import { hostOf, networkChoices, nodeChoices } from '../utils/connectOptions'
 import NodeUrlForm from './NodeUrlForm.vue'
 
-defineProps<{
+const props = defineProps<{
   networks: NetworkOption[]
   loading: boolean
   loadError: string
@@ -20,50 +22,45 @@ defineProps<{
 const nodeUrl = defineModel<string>('nodeUrl', { required: true })
 defineEmits<{ connect: [networkId: string]; 'use-node': [url: string]; 'submit-url': [] }>()
 
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host
-  } catch {
-    return url
-  }
-}
+const networkOptions = computed(() => networkChoices(props.networks))
+const nodeOptions = computed(() => nodeChoices(props.nodes))
 </script>
 
 <template>
   <section :class="styles.connect" aria-label="Connect" data-testid="network-connect">
     <div :class="styles.bar">
       <div :class="styles.group">
-        <span :class="styles.label" id="network-label">Network</span>
-        <span :class="styles.hint">Pick one to connect</span>
         <p v-if="loading" :class="styles.note">Loading the published networks.</p>
         <AvalonWarningBanner v-else-if="loadError" tone="warning" title="Could not load the published networks" :message="`${loadError} Enter a node URL below instead.`" />
-        <div v-else :class="styles.choices" role="group" aria-labelledby="network-label">
-          <AvalonButton
-            v-for="network in networks"
-            :key="network.networkId"
-            :label="network.networkId"
-            :variant="selected === network.networkId ? 'primary' : 'secondary'"
-            :disabled="connecting || busy"
-            data-testid="network-button"
-            @click="$emit('connect', network.networkId)"
-          />
-          <p v-if="networks.length === 0" :class="styles.note">No published network lists a node to connect to.</p>
-        </div>
+        <AvalonSelect
+          v-else
+          :model-value="selected"
+          :options="networkOptions"
+          label="Network"
+          placeholder="Choose a network"
+          search-placeholder="Filter networks"
+          empty-text="No network matches"
+          :disabled="connecting || busy"
+          width="22rem"
+          data-testid="network-select"
+          @update:model-value="$emit('connect', $event)"
+        />
+        <span v-if="!loading && !loadError" :class="styles.hint">{{ networks.length ? 'Pick one to connect' : 'No published network lists a node to connect to.' }}</span>
       </div>
-      <div v-if="nodes.length > 1" :class="styles.group" data-testid="node-choices">
-        <span :class="styles.label" id="node-label">Node</span>
+      <div v-if="nodes.length" :class="styles.group" data-testid="node-choices">
+        <AvalonSelect
+          :model-value="currentNode"
+          :options="nodeOptions"
+          label="Node"
+          placeholder="Choose a node"
+          search-placeholder="Filter nodes"
+          empty-text="No node matches"
+          :disabled="busy"
+          width="22rem"
+          data-testid="node-select"
+          @update:model-value="$emit('use-node', $event)"
+        />
         <span :class="styles.hint">Nodes publishing a head signed by this network, fastest first</span>
-        <div :class="styles.choices" role="group" aria-labelledby="node-label">
-          <AvalonButton
-            v-for="node in nodes"
-            :key="node.serverUrl"
-            :label="`${hostOf(node.serverUrl)}${node.latencyMs === null ? '' : ` (${Math.round(node.latencyMs)} ms)`}`"
-            :variant="node.serverUrl === currentNode ? 'primary' : 'secondary'"
-            :disabled="busy"
-            data-testid="node-choice"
-            @click="$emit('use-node', node.serverUrl)"
-          />
-        </div>
       </div>
       <div v-else-if="currentNode" :class="styles.group">
         <span :class="styles.label">Node</span>

@@ -29,12 +29,6 @@
   color: var(--av-color-text-secondary);
 }
 
-.choices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--av-space-2);
-}
-
 .note {
   margin: 0;
   font-size: var(--av-text-sm);
